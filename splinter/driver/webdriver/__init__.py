@@ -18,6 +18,7 @@ from six import BytesIO
 from splinter.driver import DriverAPI, ElementAPI
 from splinter.element_list import ElementList
 
+import configparser
 
 if sys.version_info[0] > 2:
     _meth_func = "__func__"
@@ -259,6 +260,11 @@ class BaseWebDriver(DriverAPI):
                 return True
         return False
 
+    def read_config(self, section, key):
+        config = configparser.ConfigParser()
+        config.read("path_of_your_config.cfg_file")
+        return config.get(section, key)
+
     def is_element_present_by_css(self, css_selector, wait_time=None):
         return self.is_element_present(self.find_by_css, css_selector, wait_time)
 
@@ -302,7 +308,7 @@ class BaseWebDriver(DriverAPI):
         return self.is_element_not_present(self.find_by_id, id, wait_time)
 
     def get_alert(self):
-        return AlertElement(self.driver.switch_to.alert())
+        return AlertElement(self.driver.switch_to_alert())
 
     def is_text_present(self, text, wait_time=None):
         wait_time = wait_time or self.wait_time
@@ -502,6 +508,29 @@ class BaseWebDriver(DriverAPI):
         element.send_keys(value)
         return value
 
+#sendind text by xpath, css, and id steps was missing
+    def type_by_xpath(self, xpath, value, slowly=False):
+        element = self.find_by_xpath(xpath).first._element
+        if slowly:
+            return TypeIterator(element, value)
+        element.send_keys(value)
+        return value
+
+    def type_by_id(self, id, value, slowly=False):
+        element = self.find_by_id(id).first._element
+        if slowly:
+            return TypeIterator(element, value)
+        element.send_keys(value)
+        return value
+
+    def type_by_css(self, css, value, slowly=False):
+        element = self.find_by_css(css).first._element
+        if slowly:
+            return TypeIterator(element, value)
+        element.send_keys(value)
+        return value
+
+
     def choose(self, name, value):
         fields = self.find_by_name(name)
         for field in fields:
@@ -623,6 +652,9 @@ class WebDriverElement(ElementAPI):
             '//select[@name="%s"]/option[text()="%s"]' % (self["name"], text)
         )._element.click()
 
+    # def fill_by_xpath(self, xpath, value):
+    #     self.find_by_xpath(xpath=xpath).first.fill(value)
+
     def type(self, value, slowly=False):
         if slowly:
             return TypeIterator(self._element, value)
@@ -658,6 +690,7 @@ class WebDriverElement(ElementAPI):
     @property
     def outer_html(self):
         return self["outerHTML"]
+    
 
     def find_by_css(self, selector, original_find=None, original_query=None):
         find_by = original_find or "css"

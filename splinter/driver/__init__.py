@@ -401,6 +401,32 @@ class DriverAPI(InheritedDocs("_DriverAPI", (object,), {})):
         """
         return self.find_by_id(id).first.click()
 
+    def click_link_by_xpath(self, xpath):
+        """
+        Clicks in a link by xpath.
+        """
+        return self.find_by_xpath(xpath).first.click()
+
+#following 2 methods was added by B.K
+    def clear_element_by_xpath(self, xpath):
+        """
+        Clears field by xpath.
+        """
+        return self.find_by_xpath(xpath).first.clear()
+
+    def clear_element_by_id(self, id):
+        """
+        Clears field by xpath.
+        """
+        return self.find_by_id(id).first.clear()
+
+
+    def click_link_by_css(self, css):
+        """
+        Clicks in a link by css.
+        """
+        return self.find_by_css(css).first.click()
+
     def quit(self):
         """
         Quits the browser, closing its windows (if it has one).
